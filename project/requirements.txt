@@ -1,0 +1,8 @@
+Django>=4.1.2
+mysqlclient==2.1.1
+django-mysql==4.7.1
+djangorestframework==3.13.1
+django-model-utils
+django-cors-headers
+djangorestframework-jsonapi
+django-rest-multiple-models
