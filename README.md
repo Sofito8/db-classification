@@ -14,8 +14,10 @@ El proyecto se desarrolló utilizando Docker Compose para permitir una compilaci
 ## Endpoints de la API:
 
 - **GET** http://localhost:8000/api/v1/database/ 
+
 Devuelve la información de conexión de todas las bases de datos cargadas
 - **POST** http://localhost:8000/api/v1/database/
+
 Permite almacenar la conexión de una base de datos siempre y cuando no se repitan. Body:
 	>{
 "host":"db-test",
@@ -27,6 +29,7 @@ Permite almacenar la conexión de una base de datos siempre y cuando no se repit
 - **GET** http://localhost:8000/api/v1/information_type/
 Retorna todos los tipos de información empleados para clasificar las columnas de cada tabla
 - **POST** http://localhost:8000/api/v1/information_type/
+
 Permite agregar un nuevo tipo de información para ejecutar la clasificación, se le debe otorgar un nombre y la expresión regular a buscar:
 	>{
 "name":
@@ -34,15 +37,21 @@ Permite agregar un nuevo tipo de información para ejecutar la clasificación, s
 }
 
 - **DELETE** http://localhost:8000/api/v1/information_type/id/
-En el caso de querer eliminar algun tipo de información, (as columnas anteriormentes clasificadas con este tipo se convierten en N/A).
 
+En el caso de querer eliminar algún tipo de información, (las columnas anteriormentes clasificadas con este tipo se convierten en N/A).
 - **GET** http://localhost:8000/api/v1/record/
-Devuelve la información sobre todos los escaneos realizados, base de datos escaneada, fecha y si se realizó exitosamente
 
+Devuelve la información sobre todos los escaneos realizados, base de datos escaneada, fecha y si se realizó exitosamente
 - **GET** http://localhost:8000/api/v1/database/scan/id/
+
 Mediante una id asociada a la base de datos obtiene su estructura y clasificacion.
 - **POST** http://localhost:8000/api/v1/database/scan/id/
+
 Efectúa el escaneo de la base de datos indicada mediante el id.
+- **DELETE** http://localhost:8000/api/v1/database/tables/id/
+
+Elimina todas las tablas relacionadas a una id de base de datos.
+
 
 ## Bases de datos
 A continuación se detallan los pasos para cargar ambas bases de datos mediante la terminal (Linux).
