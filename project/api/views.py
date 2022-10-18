@@ -4,21 +4,10 @@ from api.models import Column, Database, InformationType, Record, Table
 from api.serializer import (ColumnSerializer, DatabaseSerializer,
                             InformationTypeSerializer, RecordSerializer,
                             TableSerializer)
-from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-
-def index(request):
-    """
-    It takes a request and returns a response
-
-    :param request: HttpRequest object
-    :return: HttpResponse
-    """
-    return HttpResponse("Hello, world. You're at the polls index.adasdas")
 
 
 class DatabaseView(APIView):
@@ -86,7 +75,9 @@ class InformationTypeView(APIView):
         """
         serializer = InformationTypeSerializer(data=request.data)
         try:
-            existent = InformationType.objects.get(name=request.data['name'])
+            existent = InformationType.objects.get(name=request.data['name'],
+                                                   subString=request.data[
+                                                    'subString'])
         except InformationType.DoesNotExist:
             existent = None
         if existent is not None:
@@ -200,3 +191,23 @@ class DatabaseScanView(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST,
                             data={"message": "Connection to database failed. "
                                   f"Error: '{err}'"})
+
+
+class TablesView(APIView):
+    def delete(self, request, id):
+        """
+        It deletes all tables and columns stored in system_tb
+        from a database according to their id.
+
+        :param request: The request object
+        :param id: The id of the database you want to delete
+        :return: The status of the request.
+        """
+        database = Database.objects.get(idDatabase=id)
+        tables = Table.objects.filter(database=database)
+        column = Column.objects.filter(table__database=database)
+        for col in column:
+            col.delete()
+        for table in tables:
+            table.delete()
+        return Response(status=status.HTTP_200_OK)

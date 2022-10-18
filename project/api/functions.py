@@ -32,6 +32,28 @@ def connect(database):
         return connected, None, err
 
 
+def purge(database, tables):
+    """
+    Search for the tables that are not in the database anymore
+    and delete them
+    """
+    created_tables = Table.objects.filter(database=database)
+    for created_table in created_tables:
+        for table in tables:
+            if created_table.name == table[0]:
+                no_drop = True
+                break
+            else:
+                no_drop = False
+        if no_drop:
+            continue
+        else:
+            columns_of_table = Column.objects.filter(table=created_table)
+            for column in columns_of_table:
+                column.delete()
+            created_table.delete()
+
+
 def scanner(connection, database):
     """
     Gets all the tables and columns from de database to scan,
@@ -47,6 +69,10 @@ def scanner(connection, database):
     print("You're connected to database: ", record)
     cursor.execute("SHOW DATABASES")
     databases = cursor.fetchall()
+
+    '''
+    Choose the database that does not match the defaults of mysql
+    '''
     for db in databases:
         if ('information_schema' in db or 'mysql' in db or
             'performance_schema' in db or 'sys' in db):
@@ -54,9 +80,12 @@ def scanner(connection, database):
         else:
             cursor.execute("USE " + db[0])
             break
+
+    '''
+    Get all the tables from the selected database and create them
+    '''
     cursor.execute("SHOW TABLES")
     tables = cursor.fetchall()
-    created_tables = Table.objects.filter(database=database)
     for table in tables:
         try:
             table_new = Table.objects.get(name=table[0], database=database)
@@ -64,6 +93,12 @@ def scanner(connection, database):
             table_new = Table(name=table[0], database=database)
             table_new.save()
         cursor.execute("DESCRIBE " + table[0])
+
+        '''
+        Get all the columns from the selected table and create
+        them in system_db
+        '''
+        print("Table: ", table[0])
         columns = cursor.fetchall()
         for column in columns:
             try:
@@ -71,6 +106,10 @@ def scanner(connection, database):
                                                 table=table_new)
             except Column.DoesNotExist:
                 column_new = Column(name=column[0], table=table_new)
+            '''
+            Compares de info type of the column with the info types
+            in the system_db to assign the correct one
+            '''
             types = InformationType.objects.exclude(name='N/A')
             for type in types:
                 if type.subString.lower() in column[0].lower():
@@ -80,24 +119,7 @@ def scanner(connection, database):
                 column_new.informationType = InformationType.objects.get(name='N/A')
             column_new.save()
 
-    """
-    Search for the tables that are not in the database anymore
-    and delete them
-    """
-    for created_table in created_tables:
-        for table in tables:
-            if created_table.name == table[0]:
-                no_drop = True
-                break
-            else:
-                no_drop = False
-        if no_drop:
-            continue
-        else:
-            columns_of_table = Column.objects.filter(table=created_table)
-            for column in columns_of_table:
-                column.delete()
-            created_table.delete()
+    purge(database, tables)
 
     cursor.close()
     connection.close()
