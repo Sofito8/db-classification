@@ -27,6 +27,8 @@ services:
       # - /tmp/app/mysqld:/var/run/mysqld
       - ./db-test:/var/lib/mysql 
     container_name: db-test
+    depends_on:
+      - web
 
   web:
     build: .
@@ -38,6 +40,5 @@ services:
       - /tmp/app/mysqld:/run/mysqld
     depends_on:
       - db
-      - db-test
     restart: always
     container_name: web
