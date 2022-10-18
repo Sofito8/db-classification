@@ -13,6 +13,21 @@ services:
     volumes:
       - /tmp/app/mysqld:/var/run/mysqld
       - ./db:/var/lib/mysql
+    container_name: db  
+
+  db-test:
+    image: mysql:8
+    ports:
+      - "3307:3307"
+    environment:
+      MYSQL_DATABASE: test_db
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_TCP_PORT: 3307
+    volumes:
+      # - /tmp/app/mysqld:/var/run/mysqld
+      - ./db-test:/var/lib/mysql 
+    container_name: db-test
+
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -23,4 +38,6 @@ services:
       - /tmp/app/mysqld:/run/mysqld
     depends_on:
       - db
+      - db-test
     restart: always
+    container_name: web
