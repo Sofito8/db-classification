@@ -13,7 +13,12 @@ services:
     volumes:
       - /tmp/app/mysqld:/var/run/mysqld
       - ./db:/var/lib/mysql
-    container_name: db  
+    container_name: db
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-uroot", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   db-test:
     image: mysql:8
@@ -39,6 +44,7 @@ services:
       - .:/app
       - /tmp/app/mysqld:/run/mysqld
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: always
     container_name: web
