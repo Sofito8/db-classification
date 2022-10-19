@@ -7,9 +7,9 @@ Proyecto de clasificación de información de bases de datos usando Django en do
 La API permite cargar los parámetros de conexión de una base de datos, para posteriormente poder conectarse a ella y en base al nombre de las columnas de cada tabla las clasifica en tipos de información. Estos tipos de información pueden administrarse para personalizar la clasificación. Como resultado, se identifica toda la estructura de una base de datos, tablas y columnas, y el tipo de información almacenada en estas últimas.
 
 El proyecto se desarrolló utilizando Docker Compose para permitir una compilación rápida del mismo. Se levantan tres containers:
-- web:  aplicación en Django (Python).
-- db: base de datos MySQL para la API.
-- db-test: base de datos MySQL para realizar pruebas.
+- web:  aplicación en Django (Python). Se inicia una vez que se ejecuta el healthycheck del container db para que no haya errores en la conexión.
+- db: base de datos MySQL para la API. La base de datos es "system_db", puerto 3306.
+- db-test: base de datos MySQL para realizar pruebas. La base de datos es "test_db", puerto 3307.
 
 ## Endpoints de la API:
 
@@ -18,7 +18,7 @@ El proyecto se desarrolló utilizando Docker Compose para permitir una compilaci
 Devuelve la información de conexión de todas las bases de datos cargadas
 - **POST** http://localhost:8000/api/v1/database/
 
-Permite almacenar la conexión de una base de datos siempre y cuando no se repitan. Body:
+Permite almacenar la conexión de una base de datos siempre y cuando no se repitan. Body ejemplo para base de datos test_db (ya se encuentra cargada en el system_db.sql):
 	>{
 "host":"db-test",
 "port":3307,
@@ -47,7 +47,7 @@ Devuelve la información sobre todos los escaneos realizados, base de datos esca
 Mediante una id asociada a la base de datos obtiene su estructura y clasificacion.
 - **POST** http://localhost:8000/api/v1/database/scan/id/
 
-Efectúa el escaneo de la base de datos indicada mediante el id.
+Efectúa el escaneo de la base de datos indicada mediante el id. Cada informationType posee un subString el cuál se usa para identificar la columna según su nombre, si el subString está dentro del nombre de la columna se lo identifica con ese tipo.
 - **DELETE** http://localhost:8000/api/v1/database/tables/id/
 
 Elimina todas las tablas relacionadas a una id de base de datos.
