@@ -27,6 +27,7 @@ Permite almacenar la conexión de una base de datos siempre y cuando no se repit
 }
 
 - **GET** http://localhost:8000/api/v1/information_type/
+
 Retorna todos los tipos de información empleados para clasificar las columnas de cada tabla
 - **POST** http://localhost:8000/api/v1/information_type/
 
